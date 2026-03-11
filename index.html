@@ -119,11 +119,13 @@
 
     /* ── Metric Cards ── */
     .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 14px;
     }
     .metric-card {
+      flex: 0 1 210px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--card-radius);
@@ -292,14 +294,15 @@
       section { margin-bottom: 40px; }
 
       .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+      }
+      .metric-card {
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
+        padding: 16px 14px;
       }
       .metric-value {
         font-size: 1.5rem;
-      }
-      .metric-card {
-        padding: 16px 14px;
       }
 
       .chart-card {
@@ -334,8 +337,9 @@
 
     /* ── Small mobile ( ≤ 400px ) ── */
     @media (max-width: 400px) {
-      .metrics-grid {
-        grid-template-columns: 1fr;
+      .metric-card {
+        flex: 1 1 100%;
+        max-width: 100%;
       }
       .trend-row {
         grid-template-columns: 1fr 1fr;
