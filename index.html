@@ -453,11 +453,11 @@
     type: 'bar',
     data: {
       labels: [
-        '是否有電梯', '交易標的', '年份', '幾樓', '車位坪數',
-        '坪數', '屋齡', '捷運距離', '經度', '類別', '緯度'
+        '是否有電梯', '年份', '幾樓', '車位坪數',
+        '坪數', '屋齡', '捷運距離', '類別'
       ],
       datasets: [{
-        data: [0.116, 0.966, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.339, 20.376, 24.883],
+        data: [0.116, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.376],
         backgroundColor: ctx => {
           const v = ctx.parsed.x;
           if (v >= 20) return ACCENT;
@@ -592,7 +592,7 @@
   new Chart(document.getElementById('volumeChart'), {
     type: 'bar',
     data: {
-      labels: ['2022（111）', '2023（112）', '2024（113）', '2025（114）'],
+      labels: ['2022', '2023', '2024', '2025'],
       datasets: [{
         label: '成交筆數',
         data: [9590, 8671, 9907, 7633],
@@ -620,7 +620,7 @@
   new Chart(document.getElementById('pieChart'), {
     type: 'doughnut',
     data: {
-      labels: ['有電梯 7F+', '有電梯 <7F', '樓層未顯示', '無電梯 4F+', '無電梯 <4F'],
+      labels: ['有電梯 7F+', '有電梯 <7F', '透天、平房', '無電梯 4F+', '無電梯 <4F'],
       datasets: [{
         data: [7805, 16420, 544, 4438, 6594],
         backgroundColor: [ACCENT, ACCENT2, AMBER, ACCENT4, ACCENT3],
