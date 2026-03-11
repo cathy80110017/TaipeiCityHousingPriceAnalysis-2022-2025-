@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台北市房價預測分析</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22253a;
+      --border: #2e3150;
+      --accent: #6c8ef5;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --accent4: #f472b6;
+      --text: #e2e8f0;
+      --muted: #8892aa;
+      --card-radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 24px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(108,142,245,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(108,142,245,.15);
+      border: 1px solid rgba(108,142,245,.35);
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    header .meta {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    header .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+    header .meta-item span { color: var(--text); font-weight: 600; }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    section { margin-bottom: 56px; }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Metric Cards ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 24px 22px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+    .metric-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .metric-card.r2::before   { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .metric-card.mape::before { background: linear-gradient(90deg, var(--accent3), #22d3ee); }
+    .metric-card.mae::before  { background: linear-gradient(90deg, var(--accent4), #fb923c); }
+    .metric-card.rmse::before { background: linear-gradient(90deg, #fbbf24, #f97316); }
+    .metric-card.cv::before   { background: linear-gradient(90deg, var(--accent2), var(--accent4)); }
+
+    .metric-label {
+      font-size: .78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .metric-card.r2   .metric-value { color: var(--accent); }
+    .metric-card.mape .metric-value { color: var(--accent3); }
+    .metric-card.mae  .metric-value { color: var(--accent4); }
+    .metric-card.rmse .metric-value { color: #fbbf24; }
+    .metric-card.cv   .metric-value { color: var(--accent2); }
+    .metric-sub {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* ── Chart Cards ── */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 28px 24px;
+      transition: border-color .2s;
+    }
+    .chart-card:hover { border-color: rgba(108,142,245,.35); }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .chart-desc {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .charts-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 20px;
+    }
+
+    canvas { display: block; }
+
+    /* ── Trend Chips ── */
+    .trend-positive { color: var(--accent3); font-weight: 700; }
+    .trend-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .trend-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: .82rem;
+    }
+    .trend-chip .year { color: var(--muted); margin-bottom: 2px; font-size: .72rem; text-transform: uppercase; }
+    .trend-chip .price { font-weight: 700; font-size: .92rem; }
+    .trend-chip .yoy  { font-size: .75rem; color: var(--accent3); }
+
+    /* ── Pipeline ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .pipeline-step {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .pipeline-arrow { color: var(--muted); font-size: 1.1rem; padding: 0 2px; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ HEADER ════════════ -->
+<header>
+  <div class="badge">Machine Learning · 隨機森林</div>
+  <h1>台北市房價預測分析</h1>
+  <p>2022–2025 台北市不動產交易實價登錄資料，結合地理座標與捷運站距離，訓練隨機森林模型預測每坪成交單價。</p>
+  <div class="meta">
+    <div class="meta-item">資料筆數 <span>35,801</span></div>
+    <div class="meta-item">訓練集 <span>28,068</span></div>
+    <div class="meta-item">測試集 <span>7,017</span></div>
+    <div class="meta-item">分析區間 <span>2022 – 2025</span></div>
+  </div>
+</header>
+
+<!-- ════════════ MAIN ════════════ -->
+<main>
+
+  <!-- ① 模型績效 -->
+  <section>
+    <div class="section-title">模型績效指標</div>
+    <div class="metrics-grid">
+      <div class="metric-card r2">
+        <div class="metric-label">R² Score</div>
+        <div class="metric-value">0.833</div>
+        <div class="metric-sub">解釋 83.3% 的價格變異</div>
+      </div>
+      <div class="metric-card mape">
+        <div class="metric-label">MAPE</div>
+        <div class="metric-value">8.62<span style="font-size:1.2rem">%</span></div>
+        <div class="metric-sub">平均絕對百分比誤差</div>
+      </div>
+      <div class="metric-card mae">
+        <div class="metric-label">MAE（元／坪）</div>
+        <div class="metric-value" style="font-size:1.5rem">58,829</div>
+        <div class="metric-sub">平均絕對誤差</div>
+      </div>
+      <div class="metric-card rmse">
+        <div class="metric-label">RMSE（元／坪）</div>
+        <div class="metric-value" style="font-size:1.5rem">83,374</div>
+        <div class="metric-sub">均方根誤差</div>
+      </div>
+      <div class="metric-card cv">
+        <div class="metric-label">CV R²（5-fold）</div>
+        <div class="metric-value" style="font-size:1.5rem">0.836</div>
+        <div class="metric-sub">± 0.004（穩定性高）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 特徵重要性 + 分類比較 -->
+  <section>
+    <div class="section-title">特徵分析</div>
+    <div class="charts-2col">
+      <div class="chart-card">
+        <div class="chart-title">特徵重要性排名</div>
+        <div class="chart-desc">地理位置（緯度＋經度）合計佔 45.2%，是最強預測因子。</div>
+        <canvas id="featureChart" height="280"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">各類別平均與中位數房價（元／坪）</div>
+        <div class="chart-desc">有電梯高樓層房價高出無電梯低樓層約 35%。</div>
+        <canvas id="categoryChart" height="280"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 年度趨勢 -->
+  <section>
+    <div class="section-title">年度房價趨勢</div>
+    <div class="chart-card">
+      <div class="chart-title">2022–2025 台北市每坪平均成交單價</div>
+      <div class="chart-desc">四年累計漲幅 <span class="trend-positive">+15.3%</span>，2024 年漲幅最大（+6.7%）。</div>
+      <canvas id="trendChart" height="140"></canvas>
+      <div class="trend-row">
+        <div class="trend-chip">
+          <div class="year">2022 · 民國 111</div>
+          <div class="price">690,460 元</div>
+          <div class="yoy" style="color:var(--muted)">基準年</div>
+        </div>
+        <div class="trend-chip">
+          <div class="year">2023 · 民國 112</div>
+          <div class="price">707,449 元</div>
+          <div class="yoy">▲ +2.5%</div>
+        </div>
+        <div class="trend-chip">
+          <div class="year">2024 · 民國 113</div>
+          <div class="price">755,140 元</div>
+          <div class="yoy">▲ +6.7%</div>
+        </div>
+        <div class="trend-chip">
+          <div class="year">2025 · 民國 114</div>
+          <div class="price">795,856 元</div>
+          <div class="yoy">▲ +5.4%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 成交量 vs 房價 -->
+  <section>
+    <div class="section-title">成交量與房價分布</div>
+    <div class="charts-2col">
+      <div class="chart-card">
+        <div class="chart-title">各年度成交量</div>
+        <div class="chart-desc">2024 年成交量最高（9,907 筆），2025 年資料截至上半年。</div>
+        <canvas id="volumeChart" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">各類別資料筆數</div>
+        <div class="chart-desc">有電梯 7 樓以下佔最大宗（46.8%），反映台北市主要住宅型態。</div>
+        <canvas id="pieChart" height="220"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 資料處理流程 -->
+  <section>
+    <div class="section-title">資料處理流程</div>
+    <div class="chart-card">
+      <div class="chart-title">Pipeline</div>
+      <div class="chart-desc">原始實價登錄資料 → 五步驟清洗與特徵工程 → 模型訓練</div>
+      <div class="pipeline" style="margin-top:20px">
+        <div class="pipeline-step">① 原始資料<br><small style="color:var(--muted)">40,261 筆</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">② 資料篩選<br><small style="color:var(--muted)">住宅過濾</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">③ 地理編碼<br><small style="color:var(--muted)">ArcGIS API</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">④ 捷運距離<br><small style="color:var(--muted)">Haversine</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">⑤ 類別分類<br><small style="color:var(--muted)">5 類別</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step" style="border-color:var(--accent);color:var(--accent)">⑥ RF 模型<br><small>200 trees</small></div>
+      </div>
+
+      <!-- Model params table -->
+      <div style="margin-top:28px;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.84rem">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:8px 12px;color:var(--muted)">參數</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--muted)">數值</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--muted)">說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 12px">n_estimators</td>
+              <td style="padding:8px 12px;color:var(--accent)">200</td>
+              <td style="padding:8px 12px;color:var(--muted)">決策樹數量</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 12px">max_depth</td>
+              <td style="padding:8px 12px;color:var(--accent)">20</td>
+              <td style="padding:8px 12px;color:var(--muted)">最大樹深度</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 12px">min_samples_leaf</td>
+              <td style="padding:8px 12px;color:var(--accent)">5</td>
+              <td style="padding:8px 12px;color:var(--muted)">葉節點最少樣本數</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 12px">Train / Test split</td>
+              <td style="padding:8px 12px;color:var(--accent)">80 / 20 %</td>
+              <td style="padding:8px 12px;color:var(--muted)">訓練測試比例</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px">Outlier removal</td>
+              <td style="padding:8px 12px;color:var(--accent)">各 1%</td>
+              <td style="padding:8px 12px;color:var(--muted)">移除上下各 1% 極端值（共 716 筆）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>資料來源：內政部不動產成交案件實際資訊資料供應系統 &nbsp;|&nbsp; 模型：Random Forest Regressor</p>
+  <p style="margin-top:6px">
+    <a href="https://github.com/chenjiayin" target="_blank">GitHub</a>
+  </p>
+</footer>
+
+<!-- ════════════ CHARTS ════════════ -->
+<script>
+  const ACCENT   = '#6c8ef5';
+  const ACCENT2  = '#a78bfa';
+  const ACCENT3  = '#34d399';
+  const ACCENT4  = '#f472b6';
+  const AMBER    = '#fbbf24';
+  const MUTED    = '#8892aa';
+  const SURFACE2 = '#22253a';
+  const BORDER   = '#2e3150';
+
+  Chart.defaults.color = MUTED;
+  Chart.defaults.borderColor = BORDER;
+  Chart.defaults.font.family = "'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif";
+
+  /* ── ① 特徵重要性 ── */
+  new Chart(document.getElementById('featureChart'), {
+    type: 'bar',
+    data: {
+      labels: [
+        '是否有電梯', '交易標的', '年份', '幾樓', '車位坪數',
+        '坪數', '屋齡', '捷運距離', '經度', '類別', '緯度'
+      ],
+      datasets: [{
+        data: [0.116, 0.966, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.339, 20.376, 24.883],
+        backgroundColor: ctx => {
+          const v = ctx.parsed.x;
+          if (v >= 20) return ACCENT;
+          if (v >= 10) return ACCENT2;
+          if (v >= 5)  return ACCENT3;
+          return MUTED + '99';
+        },
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.x.toFixed(2)}%`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: BORDER },
+          ticks: { callback: v => v + '%' }
+        },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+
+  /* ── ② 分類房價 ── */
+  const catLabels = ['有電梯\n7樓以上', '有電梯\n7樓以下', '樓層未顯示\n或多層', '無電梯\n4樓以上', '無電梯\n4樓以下'];
+  const catShort  = ['有電梯 7F+', '有電梯 <7F', '樓層未顯示', '無電梯 4F+', '無電梯 <4F'];
+  const catMeans   = [842166, 776125, 820113, 551139, 622165];
+  const catMedians = [827362, 768228, 719427, 542098, 605730];
+
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+      labels: catShort,
+      datasets: [
+        {
+          label: '平均值',
+          data: catMeans,
+          backgroundColor: ACCENT + 'cc',
+          borderRadius: { topLeft: 4, topRight: 4 },
+          borderSkipped: false,
+        },
+        {
+          label: '中位數',
+          data: catMedians,
+          backgroundColor: ACCENT3 + 'cc',
+          borderRadius: { topLeft: 4, topRight: 4 },
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} 元/坪`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: BORDER },
+          ticks: { callback: v => (v / 10000).toFixed(0) + '萬' }
+        }
+      }
+    }
+  });
+
+  /* ── ③ 年度趨勢 ── */
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['2022（111）', '2023（112）', '2024（113）', '2025（114）'],
+      datasets: [
+        {
+          label: '平均單價（元/坪）',
+          data: [690460, 707449, 755140, 795856],
+          borderColor: ACCENT,
+          backgroundColor: ACCENT + '22',
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: ACCENT,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        },
+        {
+          label: '中位數（元/坪）',
+          data: [666332, 679573, 726179, 787808],
+          borderColor: ACCENT3,
+          backgroundColor: 'transparent',
+          borderDash: [5, 4],
+          tension: 0.35,
+          pointBackgroundColor: ACCENT3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} 元`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: BORDER },
+          ticks: { callback: v => (v / 10000).toFixed(0) + '萬' }
+        }
+      }
+    }
+  });
+
+  /* ── ④ 成交量 ── */
+  new Chart(document.getElementById('volumeChart'), {
+    type: 'bar',
+    data: {
+      labels: ['2022（111）', '2023（112）', '2024（113）', '2025（114）'],
+      datasets: [{
+        label: '成交筆數',
+        data: [9590, 8671, 9907, 7633],
+        backgroundColor: [ACCENT2 + 'cc', ACCENT2 + 'cc', ACCENT + 'cc', ACCENT2 + '88'],
+        borderRadius: { topLeft: 6, topRight: 6 },
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.parsed.y.toLocaleString()} 筆` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: BORDER }, ticks: { callback: v => v.toLocaleString() } }
+      }
+    }
+  });
+
+  /* ── ⑤ Pie ── */
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['有電梯 7F+', '有電梯 <7F', '樓層未顯示', '無電梯 4F+', '無電梯 <4F'],
+      datasets: [{
+        data: [7805, 16420, 544, 4438, 6594],
+        backgroundColor: [ACCENT, ACCENT2, AMBER, ACCENT4, ACCENT3],
+        borderColor: '#1a1d27',
+        borderWidth: 3,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 12, padding: 12, font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} 筆 (${(ctx.parsed / 35801 * 100).toFixed(1)}%)`
+          }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
