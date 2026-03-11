@@ -198,6 +198,10 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
+    .charts-2col > * {
+      min-width: 0;
+      overflow: hidden;
+    }
 
     /* 圖表容器：用 position:relative + 固定高度讓 Chart.js 正確縮放 */
     .chart-wrap {
