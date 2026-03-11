@@ -302,7 +302,7 @@
     <div class="charts-2col">
       <div class="chart-card">
         <div class="chart-title">特徵重要性排名</div>
-        <div class="chart-desc">地理位置（緯度＋經度）合計佔 45.2%，是最強預測因子。</div>
+        <div class="chart-desc">地區（緯度＋經度合併）合計佔 45.2%，是最強預測因子。</div>
         <canvas id="featureChart" height="280"></canvas>
       </div>
       <div class="chart-card">
@@ -454,10 +454,10 @@
     data: {
       labels: [
         '是否有電梯', '年份', '幾樓', '車位坪數',
-        '坪數', '屋齡', '捷運距離', '類別'
+        '坪數', '屋齡', '捷運距離', '類別', '地區'
       ],
       datasets: [{
-        data: [0.116, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.376],
+        data: [0.116, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.376, 45.222],
         backgroundColor: ctx => {
           const v = ctx.parsed.x;
           if (v >= 20) return ACCENT;
