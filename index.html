@@ -214,6 +214,34 @@
 
     canvas { display: block; }
 
+    /* ── Category Count Row ── */
+    .cat-count-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .cat-count-chip {
+      flex: 1 1 0;
+      min-width: 80px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      text-align: center;
+    }
+    .cat-count-label {
+      font-size: .7rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    .cat-count-value {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
     /* ── Trend Chips ── */
     .trend-positive { color: var(--accent3); font-weight: 700; }
     .trend-row {
@@ -414,6 +442,13 @@
         <div class="chart-title">各類別平均與中位數房價（元／坪）</div>
         <div class="chart-desc">有電梯高樓層房價高出無電梯低樓層約 35%。</div>
         <div class="chart-wrap chart-wrap--tall"><canvas id="categoryChart"></canvas></div>
+        <div class="cat-count-row">
+          <div class="cat-count-chip"><div class="cat-count-label">有電梯 7F+</div><div class="cat-count-value">7,805 筆</div></div>
+          <div class="cat-count-chip"><div class="cat-count-label">有電梯 &lt;7F</div><div class="cat-count-value">16,420 筆</div></div>
+          <div class="cat-count-chip"><div class="cat-count-label">透天、平房</div><div class="cat-count-value">544 筆</div></div>
+          <div class="cat-count-chip"><div class="cat-count-label">無電梯 4F+</div><div class="cat-count-value">4,438 筆</div></div>
+          <div class="cat-count-chip"><div class="cat-count-label">無電梯 &lt;4F</div><div class="cat-count-value">6,594 筆</div></div>
+        </div>
       </div>
     </div>
   </section>
