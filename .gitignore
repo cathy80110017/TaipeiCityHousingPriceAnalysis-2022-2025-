@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude
+.claude/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 環境變數
+.env
