@@ -60,7 +60,7 @@
       margin-bottom: 20px;
     }
     header h1 {
-      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-size: clamp(1.6rem, 5vw, 3rem);
       font-weight: 800;
       background: linear-gradient(90deg, #fff 0%, var(--accent) 100%);
       -webkit-background-clip: text;
@@ -70,13 +70,13 @@
     }
     header p {
       color: var(--muted);
-      font-size: 1rem;
+      font-size: clamp(.88rem, 2vw, 1rem);
       max-width: 640px;
       margin: 0 auto;
     }
     header .meta {
       display: flex;
-      gap: 24px;
+      gap: 16px 24px;
       justify-content: center;
       flex-wrap: wrap;
       margin-top: 28px;
@@ -100,12 +100,12 @@
     section { margin-bottom: 56px; }
 
     .section-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--accent);
       text-transform: uppercase;
       letter-spacing: .08em;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -120,14 +120,14 @@
     /* ── Metric Cards ── */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
     }
     .metric-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--card-radius);
-      padding: 24px 22px;
+      padding: 20px 18px;
       position: relative;
       overflow: hidden;
       transition: transform .2s, border-color .2s;
@@ -146,14 +146,14 @@
     .metric-card.cv::before   { background: linear-gradient(90deg, var(--accent2), var(--accent4)); }
 
     .metric-label {
-      font-size: .78rem;
+      font-size: .75rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: .06em;
       margin-bottom: 8px;
     }
     .metric-value {
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 800;
       line-height: 1;
       margin-bottom: 6px;
@@ -164,7 +164,7 @@
     .metric-card.rmse .metric-value { color: #fbbf24; }
     .metric-card.cv   .metric-value { color: var(--accent2); }
     .metric-sub {
-      font-size: .78rem;
+      font-size: .75rem;
       color: var(--muted);
     }
 
@@ -173,77 +173,174 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--card-radius);
-      padding: 28px 24px;
+      padding: 24px 20px;
       transition: border-color .2s;
     }
     .chart-card:hover { border-color: rgba(108,142,245,.35); }
 
     .chart-title {
-      font-size: 1rem;
+      font-size: .95rem;
       font-weight: 700;
       margin-bottom: 6px;
     }
     .chart-desc {
-      font-size: .82rem;
+      font-size: .8rem;
       color: var(--muted);
-      margin-bottom: 22px;
+      margin-bottom: 18px;
+      line-height: 1.5;
     }
 
+    /* 雙欄佈局：桌面並排，小螢幕疊排 */
     .charts-2col {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
+
+    /* 圖表容器：用 position:relative + 固定高度讓 Chart.js 正確縮放 */
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .chart-wrap--tall   { height: 300px; }
+    .chart-wrap--medium { height: 240px; }
+    .chart-wrap--trend  { height: 200px; }
 
     canvas { display: block; }
 
     /* ── Trend Chips ── */
     .trend-positive { color: var(--accent3); font-weight: 700; }
     .trend-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
       margin-top: 16px;
     }
     .trend-chip {
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 8px 16px;
+      padding: 10px 14px;
       font-size: .82rem;
     }
-    .trend-chip .year { color: var(--muted); margin-bottom: 2px; font-size: .72rem; text-transform: uppercase; }
-    .trend-chip .price { font-weight: 700; font-size: .92rem; }
-    .trend-chip .yoy  { font-size: .75rem; color: var(--accent3); }
+    .trend-chip .year  { color: var(--muted); margin-bottom: 2px; font-size: .7rem; }
+    .trend-chip .price { font-weight: 700; font-size: .88rem; }
+    .trend-chip .yoy   { font-size: .72rem; color: var(--accent3); }
 
     /* ── Pipeline ── */
     .pipeline {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 8px;
+      gap: 6px;
+      margin-top: 16px;
     }
     .pipeline-step {
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 8px 16px;
+      padding: 8px 14px;
       font-size: .82rem;
       font-weight: 600;
+      text-align: center;
     }
-    .pipeline-arrow { color: var(--muted); font-size: 1.1rem; padding: 0 2px; }
+    .pipeline-arrow { color: var(--muted); font-size: 1rem; padding: 0 2px; }
 
     /* ── Footer ── */
     footer {
       text-align: center;
-      padding: 32px 24px;
+      padding: 28px 20px;
       border-top: 1px solid var(--border);
       color: var(--muted);
-      font-size: .82rem;
+      font-size: .8rem;
     }
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* ════════════════════════════
+       RWD Breakpoints
+    ════════════════════════════ */
+
+    /* ── Tablet ( ≤ 900px ) ── */
+    @media (max-width: 900px) {
+      .charts-2col {
+        grid-template-columns: 1fr;
+      }
+      .chart-wrap--tall   { height: 280px; }
+      .chart-wrap--medium { height: 220px; }
+    }
+
+    /* ── Mobile ( ≤ 600px ) ── */
+    @media (max-width: 600px) {
+      header {
+        padding: 40px 16px 32px;
+      }
+      header p {
+        font-size: .85rem;
+      }
+      header .meta {
+        gap: 10px 20px;
+      }
+      header .meta-item {
+        font-size: .78rem;
+      }
+
+      main {
+        padding: 32px 16px 60px;
+      }
+
+      section { margin-bottom: 40px; }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .metric-value {
+        font-size: 1.5rem;
+      }
+      .metric-card {
+        padding: 16px 14px;
+      }
+
+      .chart-card {
+        padding: 18px 14px;
+      }
+
+      .chart-wrap--tall   { height: 240px; }
+      .chart-wrap--medium { height: 200px; }
+      .chart-wrap--trend  { height: 180px; }
+
+      .trend-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* Pipeline 垂直排列 */
+      .pipeline {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .pipeline-step {
+        text-align: center;
+      }
+      .pipeline-arrow {
+        transform: rotate(90deg);
+        align-self: center;
+      }
+
+      footer {
+        font-size: .75rem;
+      }
+    }
+
+    /* ── Small mobile ( ≤ 400px ) ── */
+    @media (max-width: 400px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+      .trend-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -303,12 +400,12 @@
       <div class="chart-card">
         <div class="chart-title">特徵重要性排名</div>
         <div class="chart-desc">地區（緯度＋經度合併）合計佔 45.2%，是最強預測因子。</div>
-        <canvas id="featureChart" height="280"></canvas>
+        <div class="chart-wrap chart-wrap--tall"><canvas id="featureChart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-title">各類別平均與中位數房價（元／坪）</div>
         <div class="chart-desc">有電梯高樓層房價高出無電梯低樓層約 35%。</div>
-        <canvas id="categoryChart" height="280"></canvas>
+        <div class="chart-wrap chart-wrap--tall"><canvas id="categoryChart"></canvas></div>
       </div>
     </div>
   </section>
@@ -319,7 +416,7 @@
     <div class="chart-card">
       <div class="chart-title">2022–2025 台北市每坪平均成交單價</div>
       <div class="chart-desc">四年累計漲幅 <span class="trend-positive">+15.3%</span>，2024 年漲幅最大（+6.7%）。</div>
-      <canvas id="trendChart" height="140"></canvas>
+      <div class="chart-wrap chart-wrap--trend"><canvas id="trendChart"></canvas></div>
       <div class="trend-row">
         <div class="trend-chip">
           <div class="year">2022 · 民國 111</div>
@@ -352,12 +449,12 @@
       <div class="chart-card">
         <div class="chart-title">各年度成交量</div>
         <div class="chart-desc">2024 年成交量最高（9,907 筆），2025 年資料截至上半年。</div>
-        <canvas id="volumeChart" height="220"></canvas>
+        <div class="chart-wrap chart-wrap--medium"><canvas id="volumeChart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-title">各類別資料筆數</div>
         <div class="chart-desc">有電梯 7 樓以下佔最大宗（46.8%），反映台北市主要住宅型態。</div>
-        <canvas id="pieChart" height="220"></canvas>
+        <div class="chart-wrap chart-wrap--medium"><canvas id="pieChart"></canvas></div>
       </div>
     </div>
   </section>
@@ -472,6 +569,7 @@
     options: {
       indexAxis: 'y',
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -519,6 +617,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
         tooltip: {
@@ -569,6 +668,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
@@ -603,6 +703,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -631,6 +732,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       cutout: '62%',
       plugins: {
         legend: {
