@@ -214,34 +214,6 @@
 
     canvas { display: block; }
 
-    /* ── Category Count Row ── */
-    .cat-count-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-    .cat-count-chip {
-      flex: 1 1 0;
-      min-width: 80px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 10px;
-      text-align: center;
-    }
-    .cat-count-label {
-      font-size: .7rem;
-      color: var(--muted);
-      margin-bottom: 2px;
-      white-space: nowrap;
-    }
-    .cat-count-value {
-      font-size: .82rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
     /* ── Trend Chips ── */
     .trend-positive { color: var(--accent3); font-weight: 700; }
     .trend-row {
@@ -442,13 +414,6 @@
         <div class="chart-title">各類別平均與中位數房價（元／坪）</div>
         <div class="chart-desc">有電梯高樓層房價高出無電梯低樓層約 35%。</div>
         <div class="chart-wrap chart-wrap--tall"><canvas id="categoryChart"></canvas></div>
-        <div class="cat-count-row">
-          <div class="cat-count-chip"><div class="cat-count-label">有電梯 7F+</div><div class="cat-count-value">7,805 筆</div></div>
-          <div class="cat-count-chip"><div class="cat-count-label">有電梯 &lt;7F</div><div class="cat-count-value">16,420 筆</div></div>
-          <div class="cat-count-chip"><div class="cat-count-label">透天、平房</div><div class="cat-count-value">544 筆</div></div>
-          <div class="cat-count-chip"><div class="cat-count-label">無電梯 4F+</div><div class="cat-count-value">4,438 筆</div></div>
-          <div class="cat-count-chip"><div class="cat-count-label">無電梯 &lt;4F</div><div class="cat-count-value">6,594 筆</div></div>
-        </div>
       </div>
     </div>
   </section>
@@ -634,6 +599,7 @@
   /* ── ② 分類房價 ── */
   const catLabels = ['有電梯\n7樓以上', '有電梯\n7樓以下', '樓層未顯示\n或多層', '無電梯\n4樓以上', '無電梯\n4樓以下'];
   const catShort  = ['有電梯 7F+', '有電梯 <7F', '透天、平房', '無電梯 4F+', '無電梯 <4F'];
+  const catCounts = [7805, 16420, 544, 4438, 6594];
   const catMeans   = [842166, 776125, 820113, 551139, 622165];
   const catMedians = [827362, 768228, 719427, 542098, 605730];
 
@@ -670,7 +636,12 @@
         }
       },
       scales: {
-        x: { grid: { display: false } },
+        x: {
+          grid: { display: false },
+          ticks: {
+            callback: (_, i) => [catShort[i], catCounts[i].toLocaleString() + ' 筆']
+          }
+        },
         y: {
           grid: { color: BORDER },
           ticks: { callback: v => (v / 10000).toFixed(0) + '萬' }
