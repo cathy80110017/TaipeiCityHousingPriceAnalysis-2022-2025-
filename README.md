@@ -486,5 +486,3 @@ python rf_analysis.py
 6. **坪數換算：** 1 坪 = 3.30579 平方公尺。
 
 ---
-
-*分析報告詳見 Notion：[台北市房價 Random Forest 預測分析報告](https://www.notion.so/31e6a618daa381c29981e7eefe2e894f)*
