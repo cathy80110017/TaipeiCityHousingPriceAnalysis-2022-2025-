@@ -38,13 +38,12 @@ def strip_district(addr):
     """移除門牌中的「臺北市XX區」前綴，與 geocode_yearly.py 一致"""
     return re.sub(r"臺北市\S+區", "", str(addr)).strip()
 
-# ── 建立 114 年的 (地址, 幾樓) → 季度 對照表 ─────────────────────────────
-def build_quarter_map(year="114"):
+# ── 建立指定年份的 (地址, 幾樓) → 季度 對照表 ────────────────────────────
+def build_quarter_map(year):
     records = []
     for q in ["Q1", "Q2", "Q3", "Q4"]:
         path = FILTER_DIR / year / f"{year}{q}不動產買賣.csv"
         if not path.exists():
-            print(f"  [{year}{q}] 找不到：{path}")
             continue
         qdf = pd.read_csv(path, encoding="utf-8-sig", low_memory=False,
                           usecols=["土地位置建物門牌", "移轉層次"])
@@ -54,8 +53,9 @@ def build_quarter_map(year="114"):
         records.append(qdf[["地址", "幾樓", "季度"]])
         print(f"  [{year}{q}] 載入 {len(qdf)} 筆")
 
+    if not records:
+        return {}
     combined = pd.concat(records, ignore_index=True)
-    # 若同一 (地址, 幾樓) 出現在多季（重複交易），保留第一筆
     combined = combined.drop_duplicates(subset=["地址", "幾樓"], keep="first")
     return combined.set_index(["地址", "幾樓"])["季度"].to_dict()
 
@@ -70,21 +70,22 @@ for csv_file in sorted(DATA_DIR.glob("*.csv")):
 df = pd.concat(all_dfs, ignore_index=True)
 print(f"Total rows: {len(df)}")
 
-# ── 2. 為 114 年標記季度 ─────────────────────────────────────────────────
-print("\n建立 114 年季度對照表...")
-quarter_map = build_quarter_map("114")
-print(f"  對照表共 {len(quarter_map)} 筆唯一 (地址, 幾樓)")
+# ── 2. 為 114、115 年標記季度 ────────────────────────────────────────────
+for year in ["114", "115"]:
+    print(f"\n建立 {year} 年季度對照表...")
+    quarter_map = build_quarter_map(year)
+    print(f"  對照表共 {len(quarter_map)} 筆唯一 (地址, 幾樓)")
 
-mask_114 = df["年份"] == "114"
-df.loc[mask_114, "季度"] = df.loc[mask_114].apply(
-    lambda r: quarter_map.get((r["地址"], r["幾樓"]), None), axis=1
-)
+    mask_yr = df["年份"] == year
+    df.loc[mask_yr, "季度"] = df.loc[mask_yr].apply(
+        lambda r: quarter_map.get((r["地址"], r["幾樓"]), None), axis=1
+    )
+    matched  = df.loc[mask_yr, "季度"].notna().sum()
+    total_yr = mask_yr.sum()
+    if total_yr > 0:
+        print(f"  {year} 年共 {total_yr} 筆，成功對應季度 {matched} 筆（{matched/total_yr:.1%}）")
 
-matched = df.loc[mask_114, "季度"].notna().sum()
-total_114 = mask_114.sum()
-print(f"  114 年共 {total_114} 筆，成功對應季度 {matched} 筆（{matched/total_114:.1%}）")
-
-# 未能對應的 114 資料無法確認是否為 Q4，一律歸入訓練集（不列入測試集）
+# 未能對應的資料無法確認季度，一律歸入訓練集
 df["季度"] = df["季度"].fillna("Q_unknown")
 
 # ── 3. 特徵工程 ──────────────────────────────────────────────────────────
@@ -122,14 +123,17 @@ y      = y[mask]
 meta   = df_model[["季度", "年份"]][mask].copy()
 print(f"\n移除極端值後：{len(X)} 筆")
 
-# ── 5. 時間序列切分：訓練 = ~Q3 2025，測試 = Q4 2025 ─────────────────────
-test_mask  = (meta["年份"] == "114") & (meta["季度"] == "Q4")
+# ── 5. 時間序列切分：訓練 = ~Q3 2025，測試 = Q4 2025 + Q1 2026 ────────────
+test_mask  = (
+    ((meta["年份"] == "114") & (meta["季度"] == "Q4")) |
+    ((meta["年份"] == "115") & (meta["季度"] == "Q1"))
+)
 train_mask = ~test_mask
 
 X_train, y_train = X[train_mask], y[train_mask]
 X_test,  y_test  = X[test_mask],  y[test_mask]
-print(f"訓練集（2022–2025 Q3）：{len(X_train)} 筆")
-print(f"測試集（2025 Q4）    ：{len(X_test)} 筆")
+print(f"訓練集（2022–2025 Q3）       ：{len(X_train)} 筆")
+print(f"測試集（2025 Q4 + 2026 Q1）  ：{len(X_test)} 筆")
 
 # ── 6. 訓練 Random Forest ────────────────────────────────────────────────
 print("\n訓練模型...")
@@ -169,7 +173,7 @@ results = {
     "model_rows":  int(len(X)),
     "train_rows":  int(len(X_train)),
     "test_rows":   int(len(X_test)),
-    "split_method": "time-based: train=2022-2025Q3, test=2025Q4",
+    "split_method": "time-based: train=2022-2025Q3, test=2025Q4+2026Q1",
     "mae":  float(mae),
     "rmse": float(rmse),
     "r2":   float(r2),

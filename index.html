@@ -357,12 +357,12 @@
 <header>
   <div class="badge">Machine Learning · 隨機森林</div>
   <h1>台北市房價預測分析</h1>
-  <p>2022–2025 台北市不動產交易實價登錄資料，結合地理座標與捷運站距離，訓練隨機森林模型預測每坪成交單價。<br>訓練集：2022–2025 Q3｜測試集：2025 Q4（時間序列切分）</p>
+  <p>2022–2026 台北市不動產交易實價登錄資料，結合地理座標與捷運站距離，訓練隨機森林模型預測每坪成交單價。<br>訓練集：2022–2025 Q3｜測試集：2025 Q4 + 2026 Q1（時間序列切分）</p>
   <div class="meta">
-    <div class="meta-item">資料筆數 <span>35,801</span></div>
-    <div class="meta-item">訓練集 <span>33,375</span></div>
-    <div class="meta-item">測試集 <span>1,710</span></div>
-    <div class="meta-item">分析區間 <span>2022 – 2025</span></div>
+    <div class="meta-item">資料筆數 <span>35,991</span></div>
+    <div class="meta-item">訓練集 <span>33,377</span></div>
+    <div class="meta-item">測試集 <span>1,894</span></div>
+    <div class="meta-item">分析區間 <span>2022 – 2026 Q1</span></div>
   </div>
 </header>
 
@@ -375,8 +375,8 @@
     <div class="metrics-grid">
       <div class="metric-card r2">
         <div class="metric-label">R² Score</div>
-        <div class="metric-value">0.743</div>
-        <div class="metric-sub">解釋 74.3% 的價格變異</div>
+        <div class="metric-value">0.750</div>
+        <div class="metric-sub">解釋 75.0% 的價格變異</div>
       </div>
       <div class="metric-card mape">
         <div class="metric-label">MAPE</div>
@@ -385,18 +385,18 @@
       </div>
       <div class="metric-card mae">
         <div class="metric-label">MAE（元／坪）</div>
-        <div class="metric-value" style="font-size:1.5rem">81,359</div>
+        <div class="metric-value" style="font-size:1.5rem">82,167</div>
         <div class="metric-sub">平均絕對誤差</div>
       </div>
       <div class="metric-card rmse">
         <div class="metric-label">RMSE（元／坪）</div>
-        <div class="metric-value" style="font-size:1.5rem">107,792</div>
+        <div class="metric-value" style="font-size:1.5rem">109,135</div>
         <div class="metric-sub">均方根誤差</div>
       </div>
       <div class="metric-card cv">
         <div class="metric-label">CV R²（5-fold，訓練集）</div>
         <div class="metric-value" style="font-size:1.5rem">0.832</div>
-        <div class="metric-sub">± 0.004（穩定性高）</div>
+        <div class="metric-sub">± 0.002（穩定性高）</div>
       </div>
     </div>
   </section>
@@ -422,8 +422,8 @@
   <section>
     <div class="section-title">年度房價趨勢</div>
     <div class="chart-card">
-      <div class="chart-title">2022–2025 台北市每坪平均成交單價</div>
-      <div class="chart-desc">四年累計漲幅 <span class="trend-positive">+15.3%</span>，2024 年漲幅最大（+6.7%）。</div>
+      <div class="chart-title">2022–2026 Q1 台北市每坪平均成交單價</div>
+      <div class="chart-desc">四年累計漲幅 <span class="trend-positive">+15.3%</span>，2024 年漲幅最大（+6.7%）。2026 Q1 為初步數據（190 筆）。</div>
       <div class="chart-wrap chart-wrap--trend"><canvas id="trendChart"></canvas></div>
       <div class="trend-row">
         <div class="trend-chip">
@@ -446,6 +446,11 @@
           <div class="price">795,856 元</div>
           <div class="yoy">▲ +5.4%</div>
         </div>
+        <div class="trend-chip">
+          <div class="year">2026 Q1 · 民國 115</div>
+          <div class="price">896,446 元</div>
+          <div class="yoy">▲ +12.7%（初步）</div>
+        </div>
       </div>
     </div>
   </section>
@@ -456,7 +461,7 @@
     <div class="charts-2col">
       <div class="chart-card">
         <div class="chart-title">各年度成交量</div>
-        <div class="chart-desc">2024 年成交量最高（9,907 筆），2025 年資料截至上半年。</div>
+        <div class="chart-desc">2024 年成交量最高（9,907 筆），2026 年僅含 Q1 初步資料。</div>
         <div class="chart-wrap chart-wrap--medium"><canvas id="volumeChart"></canvas></div>
       </div>
       <div class="chart-card">
@@ -558,11 +563,11 @@
     type: 'bar',
     data: {
       labels: [
-        '是否有電梯', '年份', '幾樓', '車位坪數',
-        '坪數', '屋齡', '捷運距離', '類別', '地區'
+        '是否有電梯', '交易標的', '年份', '車位坪數',
+        '幾樓', '坪數', '屋齡', '捷運距離', '類別', '地區'
       ],
       datasets: [{
-        data: [0.109, 3.275, 3.386, 3.408, 4.275, 9.427, 10.146, 19.847, 45.121],
+        data: [0.109, 1.021, 3.253, 3.374, 3.378, 4.320, 9.591, 10.115, 19.823, 45.018],
         backgroundColor: ctx => {
           const v = ctx.parsed.x;
           if (v >= 20) return ACCENT;
@@ -599,9 +604,9 @@
   /* ── ② 分類房價 ── */
   const catLabels = ['有電梯\n7樓以上', '有電梯\n7樓以下', '樓層未顯示\n或多層', '無電梯\n4樓以上', '無電梯\n4樓以下'];
   const catShort  = ['有電梯 7F+', '有電梯 <7F', '透天、平房', '無電梯 4F+', '無電梯 <4F'];
-  const catCounts = [7805, 16420, 544, 4438, 6594];
-  const catMeans   = [842166, 776125, 820113, 551139, 622165];
-  const catMedians = [827362, 768228, 719427, 542098, 605730];
+  const catCounts = [7849, 16521, 544, 4451, 6626];
+  const catMeans   = [843658, 776967, 820113, 551280, 622400];
+  const catMedians = [828130, 768683, 719427, 542286, 606133];
 
   new Chart(document.getElementById('categoryChart'), {
     type: 'bar',
@@ -654,11 +659,11 @@
   new Chart(document.getElementById('trendChart'), {
     type: 'line',
     data: {
-      labels: ['2022（111）', '2023（112）', '2024（113）', '2025（114）'],
+      labels: ['2022（111）', '2023（112）', '2024（113）', '2025（114）', '2026 Q1（115）'],
       datasets: [
         {
           label: '平均單價（元/坪）',
-          data: [690460, 707449, 755140, 795856],
+          data: [690460, 707449, 755140, 795856, 896446],
           borderColor: ACCENT,
           backgroundColor: ACCENT + '22',
           fill: true,
@@ -669,7 +674,7 @@
         },
         {
           label: '中位數（元/坪）',
-          data: [666332, 679573, 726179, 787808],
+          data: [666332, 679573, 726179, 787808, 885842],
           borderColor: ACCENT3,
           backgroundColor: 'transparent',
           borderDash: [5, 4],
@@ -706,11 +711,11 @@
   new Chart(document.getElementById('volumeChart'), {
     type: 'bar',
     data: {
-      labels: ['2022', '2023', '2024', '2025'],
+      labels: ['2022', '2023', '2024', '2025', '2026 Q1'],
       datasets: [{
         label: '成交筆數',
-        data: [9590, 8671, 9907, 7633],
-        backgroundColor: [ACCENT2 + 'cc', ACCENT2 + 'cc', ACCENT + 'cc', ACCENT2 + '88'],
+        data: [9590, 8671, 9907, 7633, 190],
+        backgroundColor: [ACCENT2 + 'cc', ACCENT2 + 'cc', ACCENT + 'cc', ACCENT2 + 'cc', ACCENT2 + '55'],
         borderRadius: { topLeft: 6, topRight: 6 },
         borderSkipped: false,
       }]
@@ -737,7 +742,7 @@
     data: {
       labels: ['有電梯 7F+', '有電梯 <7F', '透天、平房', '無電梯 4F+', '無電梯 <4F'],
       datasets: [{
-        data: [7805, 16420, 544, 4438, 6594],
+        data: [7849, 16521, 544, 4451, 6626],
         backgroundColor: [ACCENT, ACCENT2, AMBER, ACCENT4, ACCENT3],
         borderColor: '#1a1d27',
         borderWidth: 3,
@@ -755,7 +760,7 @@
         },
         tooltip: {
           callbacks: {
-            label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} 筆 (${(ctx.parsed / 35801 * 100).toFixed(1)}%)`
+            label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} 筆 (${(ctx.parsed / 35991 * 100).toFixed(1)}%)`
           }
         }
       }
