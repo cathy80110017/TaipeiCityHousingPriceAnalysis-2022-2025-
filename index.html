@@ -357,11 +357,11 @@
 <header>
   <div class="badge">Machine Learning · 隨機森林</div>
   <h1>台北市房價預測分析</h1>
-  <p>2022–2025 台北市不動產交易實價登錄資料，結合地理座標與捷運站距離，訓練隨機森林模型預測每坪成交單價。</p>
+  <p>2022–2025 台北市不動產交易實價登錄資料，結合地理座標與捷運站距離，訓練隨機森林模型預測每坪成交單價。<br>訓練集：2022–2025 Q3｜測試集：2025 Q4（時間序列切分）</p>
   <div class="meta">
     <div class="meta-item">資料筆數 <span>35,801</span></div>
-    <div class="meta-item">訓練集 <span>28,068</span></div>
-    <div class="meta-item">測試集 <span>7,017</span></div>
+    <div class="meta-item">訓練集 <span>33,375</span></div>
+    <div class="meta-item">測試集 <span>1,710</span></div>
     <div class="meta-item">分析區間 <span>2022 – 2025</span></div>
   </div>
 </header>
@@ -375,27 +375,27 @@
     <div class="metrics-grid">
       <div class="metric-card r2">
         <div class="metric-label">R² Score</div>
-        <div class="metric-value">0.833</div>
-        <div class="metric-sub">解釋 83.3% 的價格變異</div>
+        <div class="metric-value">0.743</div>
+        <div class="metric-sub">解釋 74.3% 的價格變異</div>
       </div>
       <div class="metric-card mape">
         <div class="metric-label">MAPE</div>
-        <div class="metric-value">8.62<span style="font-size:1.2rem">%</span></div>
+        <div class="metric-value">10.22<span style="font-size:1.2rem">%</span></div>
         <div class="metric-sub">平均絕對百分比誤差</div>
       </div>
       <div class="metric-card mae">
         <div class="metric-label">MAE（元／坪）</div>
-        <div class="metric-value" style="font-size:1.5rem">58,829</div>
+        <div class="metric-value" style="font-size:1.5rem">81,359</div>
         <div class="metric-sub">平均絕對誤差</div>
       </div>
       <div class="metric-card rmse">
         <div class="metric-label">RMSE（元／坪）</div>
-        <div class="metric-value" style="font-size:1.5rem">83,374</div>
+        <div class="metric-value" style="font-size:1.5rem">107,792</div>
         <div class="metric-sub">均方根誤差</div>
       </div>
       <div class="metric-card cv">
-        <div class="metric-label">CV R²（5-fold）</div>
-        <div class="metric-value" style="font-size:1.5rem">0.836</div>
+        <div class="metric-label">CV R²（5-fold，訓練集）</div>
+        <div class="metric-value" style="font-size:1.5rem">0.832</div>
         <div class="metric-sub">± 0.004（穩定性高）</div>
       </div>
     </div>
@@ -562,7 +562,7 @@
         '坪數', '屋齡', '捷運距離', '類別', '地區'
       ],
       datasets: [{
-        data: [0.116, 3.431, 3.517, 3.781, 4.492, 7.920, 10.180, 20.376, 45.222],
+        data: [0.109, 3.275, 3.386, 3.408, 4.275, 9.427, 10.146, 19.847, 45.121],
         backgroundColor: ctx => {
           const v = ctx.parsed.x;
           if (v >= 20) return ACCENT;
